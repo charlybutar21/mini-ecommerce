@@ -1,6 +1,5 @@
 package org.charly.productservice.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +10,7 @@ import org.charly.productservice.dto.response.ProductResponse;
 import org.charly.productservice.entity.Brand;
 import org.charly.productservice.entity.Category;
 import org.charly.productservice.entity.Product;
+import org.charly.productservice.exception.ProductNotFoundException;
 import org.charly.productservice.mapper.ProductMapper;
 import org.charly.productservice.producer.ProductEventProducer;
 import org.charly.productservice.repository.ProductRepository;
@@ -31,7 +31,7 @@ public class ProductServiceImpl implements ProductService{
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final ProductEventProducer eventProducer;
-    private final RedisTemplate<String, ProductResponse> redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     private static final String PRODUCT_CACHE_PREFIX = "product_";
 
@@ -65,7 +65,7 @@ public class ProductServiceImpl implements ProductService{
         log.info("Updating product with id: {}", id);
 
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+                .orElseThrow(() -> new ProductNotFoundException(id));
 
         product.setName(request.name());
         product.setCategory(new Category(request.categoryId(), null));
@@ -89,7 +89,7 @@ public class ProductServiceImpl implements ProductService{
         log.info("Deleting product with id: {}", id);
 
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+                .orElseThrow(() -> new ProductNotFoundException(id));
 
         productRepository.delete(product);
 
@@ -106,14 +106,14 @@ public class ProductServiceImpl implements ProductService{
 
         String cacheKey = PRODUCT_CACHE_PREFIX + id;
 
-        ProductResponse cachedProduct = redisTemplate.opsForValue().get(cacheKey);
+        ProductResponse cachedProduct = (ProductResponse) redisTemplate.opsForValue().get(cacheKey);
         if (cachedProduct != null) {
             log.info("Product found in cache: {}", cachedProduct);
             return cachedProduct;
         }
 
         Product product = productRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Product not found"));
+                .orElseThrow(() -> new ProductNotFoundException(id));
 
         ProductResponse response = productMapper.toResponse(product);
 

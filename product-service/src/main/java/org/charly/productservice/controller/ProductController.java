@@ -48,9 +48,9 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public WebResponse<Void> deleteProduct(@PathVariable Long id) {
+    public WebResponse<Long> deleteProduct(@PathVariable Long id) {
         productService.deleteProduct(id);
-        return WebResponse.<Void>builder().build();
+        return WebResponse.<Long>builder().data(id).build();
     }
 
     @GetMapping("/{id}")

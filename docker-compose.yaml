@@ -1,0 +1,55 @@
+services:
+  mysql_product:
+    image: mysql:8.0
+    container_name: mysql_product
+    ports:
+      - "3307:3306"  # Gunakan port 3307 agar tidak bentrok dengan MySQL lain
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: product_db
+    volumes:
+      - mysql-product-data:/var/lib/mysql
+    networks:
+      - app-network
+
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6380:6379"
+    networks:
+      - app-network
+
+  kafka:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+    depends_on:
+      - zookeeper
+    networks:
+      - app-network
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:latest
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  mysql-product-data:
+    driver: local
+  mysql-order-data:
+    driver: local
