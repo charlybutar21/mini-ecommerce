@@ -1,0 +1,33 @@
+### Create a new product
+POST http://localhost:8080/api/products
+Content-Type: application/json
+
+{
+  "name": "Nike Butar Series",
+  "description": "Nike Butar Series",
+  "price": 3000000,
+  "categoryId": 2,
+  "brandId": 1
+}
+
+### Update product
+PUT http://localhost:8080/api/products/1
+Content-Type: application/json
+
+{
+  "name": "Nike Butar Series",
+  "description": "Nike Butar Series",
+  "price": 1000000,
+  "categoryId": 2,
+  "brandId": 1
+}
+
+### Get product
+GET http://localhost:8080/api/products/1
+
+### Delete product
+DELETE http://localhost:8080/api/products/4
+
+### Search product
+GET http://localhost:8080/api/products/search?
+    # keyword=Series&categoryIds=2&brandIds=1&minPrice=1000000&maxPrice=4500000&sortBy=price&sortDirection=asc&page=0&size=3

@@ -1,5 +1,6 @@
 package org.charly.productservice.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.charly.productservice.dto.request.CreateProductRequest;
 import org.charly.productservice.dto.request.SearchProductRequest;
 import org.charly.productservice.dto.request.UpdateProductRequest;
@@ -8,7 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 public interface ProductService {
-    ProductResponse createProduct(CreateProductRequest request);
+    ProductResponse createProduct(CreateProductRequest request) ;
     ProductResponse updateProduct(Long id, UpdateProductRequest request);
     void deleteProduct(Long id);
     ProductResponse getProductById(Long id);

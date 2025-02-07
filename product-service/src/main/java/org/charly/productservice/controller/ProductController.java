@@ -1,5 +1,6 @@
 package org.charly.productservice.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.charly.productservice.dto.request.CreateProductRequest;
@@ -22,6 +23,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
@@ -31,7 +34,7 @@ public class ProductController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public WebResponse<ProductResponse> createProduct(@RequestBody @Valid CreateProductRequest request) {
+    public WebResponse<ProductResponse> createProduct(@RequestBody @Valid CreateProductRequest request) throws JsonProcessingException {
         ProductResponse productResponse = productService.createProduct(request);
         return WebResponse.<ProductResponse>builder()
                 .data(productResponse)
@@ -39,7 +42,7 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public WebResponse<ProductResponse> updateProduct(@PathVariable Long id, @RequestBody @Valid UpdateProductRequest request) {
+    public WebResponse<ProductResponse> updateProduct(@PathVariable Long id, @RequestBody @Valid UpdateProductRequest request) throws JsonProcessingException {
         ProductResponse productResponse = productService.updateProduct(id, request);
         return WebResponse.<ProductResponse>builder()
                 .data(productResponse)
@@ -48,7 +51,7 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public WebResponse<Long> deleteProduct(@PathVariable Long id) {
+    public WebResponse<Long> deleteProduct(@PathVariable Long id) throws JsonProcessingException {
         productService.deleteProduct(id);
         return WebResponse.<Long>builder().data(id).build();
     }
@@ -62,11 +65,11 @@ public class ProductController {
     }
 
     @GetMapping("/search")
-    public WebResponse<Page<ProductResponse>> searchProducts(SearchProductRequest request, Pageable pageable) {
+    public WebResponse<List<ProductResponse>> searchProducts(SearchProductRequest request, Pageable pageable) {
         Page<ProductResponse> productResponses = productService.searchProducts(request, pageable);
         PagingResponse pagingResponse = new PagingResponse(pageable.getPageNumber(), pageable.getPageSize(), productResponses.getTotalElements());
-        return WebResponse.<Page<ProductResponse>>builder()
-                .data(productResponses)
+        return WebResponse.<List<ProductResponse>>builder()
+                .data(productResponses.getContent())
                 .paging(pagingResponse)
                 .build();
     }

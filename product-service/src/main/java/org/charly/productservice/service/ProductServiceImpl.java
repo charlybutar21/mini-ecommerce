@@ -12,7 +12,6 @@ import org.charly.productservice.entity.Category;
 import org.charly.productservice.entity.Product;
 import org.charly.productservice.exception.ProductNotFoundException;
 import org.charly.productservice.mapper.ProductMapper;
-import org.charly.productservice.producer.ProductEventProducer;
 import org.charly.productservice.repository.ProductRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,7 +29,6 @@ public class ProductServiceImpl implements ProductService{
 
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
-    private final ProductEventProducer eventProducer;
     private final RedisTemplate<String, Object> redisTemplate;
 
     private static final String PRODUCT_CACHE_PREFIX = "product_";
@@ -42,17 +40,17 @@ public class ProductServiceImpl implements ProductService{
 
         Product product = Product.builder()
                 .name(request.name())
+                .description(request.description())
                 .category(new Category(request.categoryId(), null))
                 .brand(new Brand(request.brandId(), null))
                 .price(request.price())
                 .build();
 
-        productRepository.save(product);
+        product = productRepository.save(product);
+        product = productRepository.findById(product.getId()).orElseThrow();
         ProductResponse response = productMapper.toResponse(product);
 
-        redisTemplate.opsForValue().set(PRODUCT_CACHE_PREFIX + product.getId(), response, Duration.ofHours(1));
-
-        eventProducer.sendProductCreated(response);
+        redisTemplate.opsForValue().set(PRODUCT_CACHE_PREFIX + product.getId(), product, Duration.ofHours(1));
 
         log.info("Product created successfully: {}", response);
 
@@ -72,12 +70,10 @@ public class ProductServiceImpl implements ProductService{
         product.setBrand(new Brand(request.brandId(), null));
         product.setPrice(request.price());
 
-        productRepository.save(product);
+        product = productRepository.save(product);
         ProductResponse response = productMapper.toResponse(product);
 
-        redisTemplate.opsForValue().set(PRODUCT_CACHE_PREFIX + id, response, Duration.ofHours(1));
-
-        eventProducer.sendProductUpdated(response);
+        redisTemplate.opsForValue().set(PRODUCT_CACHE_PREFIX + id, product, Duration.ofHours(1));
 
         log.info("Product updated successfully: {}", response);
 
@@ -95,8 +91,6 @@ public class ProductServiceImpl implements ProductService{
 
         redisTemplate.delete(PRODUCT_CACHE_PREFIX + id);
 
-        eventProducer.sendProductDeleted(id);
-
         log.info("Product deleted successfully: {}", id);
     }
 
@@ -106,19 +100,18 @@ public class ProductServiceImpl implements ProductService{
 
         String cacheKey = PRODUCT_CACHE_PREFIX + id;
 
-        ProductResponse cachedProduct = (ProductResponse) redisTemplate.opsForValue().get(cacheKey);
+        Product cachedProduct = (Product) redisTemplate.opsForValue().get(cacheKey);
         if (cachedProduct != null) {
             log.info("Product found in cache: {}", cachedProduct);
-            return cachedProduct;
+            return productMapper.toResponse(cachedProduct);
         }
 
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException(id));
 
+        redisTemplate.opsForValue().set(cacheKey, product, Duration.ofHours(1));
+
         ProductResponse response = productMapper.toResponse(product);
-
-        redisTemplate.opsForValue().set(cacheKey, response, Duration.ofHours(1));
-
         log.info("Product fetched from DB: {}", response);
         return response;
     }
