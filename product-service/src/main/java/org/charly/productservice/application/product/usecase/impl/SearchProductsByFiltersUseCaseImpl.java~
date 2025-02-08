@@ -1,0 +1,70 @@
+package org.charly.productservice.application.product.usecase.impl;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.charly.productservice.application.product.dto.request.SearchProductRequest;
+import org.charly.productservice.application.product.dto.response.ProductResponse;
+import org.charly.productservice.domain.product.model.Product;
+import org.charly.productservice.mapper.ProductMapper;
+import org.charly.productservice.domain.product.repository.ProductRepository;
+import org.charly.productservice.application.product.usecase.SearchProductsByFiltersUseCase;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j
+public class SearchProductsByFiltersUseCaseImpl implements SearchProductsByFiltersUseCase {
+
+    private final ProductRepository productRepository;
+
+    private final ProductMapper productMapper;
+
+    @Override
+    public Page<ProductResponse> execute(SearchProductRequest request) throws JsonProcessingException {
+        log.info("Searching products with filters: {}", request);
+
+        Specification<Product> spec = (root, query, cb) -> cb.conjunction();
+
+        if (StringUtils.hasText(request.keyword())) {
+            spec = spec.and((root, query, cb) ->
+                    cb.like(cb.lower(root.get("name")), "%" + request.keyword().toLowerCase() + "%")
+            );
+        }
+        if (request.categoryIds() != null && !request.categoryIds().isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    root.get("category").get("id").in(request.categoryIds())
+            );
+        }
+        if (request.brandIds() != null && !request.brandIds().isEmpty()) {
+            spec = spec.and((root, query, cb) ->
+                    root.get("brand").get("id").in(request.brandIds())
+            );
+        }
+        if (request.minPrice() != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.greaterThanOrEqualTo(root.get("price"), request.minPrice())
+            );
+        }
+        if (request.maxPrice() != null) {
+            spec = spec.and((root, query, cb) ->
+                    cb.lessThanOrEqualTo(root.get("price"), request.maxPrice())
+            );
+        }
+
+        Pageable pageable = PageRequest.of(
+                request.pageNumber(),
+                request.pageSize(),
+                Sort.Direction.valueOf(request.direction()),
+                request.sortBy()
+        );
+        Page<Product> products = productRepository.findAll(spec, pageable);
+        return products.map(productMapper::toResponse);
+    }
+}

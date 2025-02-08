@@ -1,0 +1,7 @@
+package org.charly.productservice.interfaces.product.dto.response;
+
+public record CategoryRestApiResponse(
+        Long id,
+        String name
+){
+}

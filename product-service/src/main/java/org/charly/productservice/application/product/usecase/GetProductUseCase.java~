@@ -1,0 +1,7 @@
+package org.charly.productservice.application.product.usecase;
+
+import org.charly.productservice.application.UseCase;
+import org.charly.productservice.application.product.dto.response.ProductResponse;
+
+public interface GetProductByIdUseCase extends UseCase<String, ProductResponse> {}
+
