@@ -35,15 +35,14 @@ class CreateProductUseCaseImplTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        request = CreateProductRequest.builder()
-                .code("P123")
-                .name("Product Name")
-                .description("Product Description")
-                .price(BigDecimal.valueOf(1000000))
-                .stock(10)
-                .categoryId(1L)
-                .brandId(1L)
-                .build();
+        request = new CreateProductRequest();
+        request.setCode("P123");
+        request.setName("Product Name");
+        request.setDescription("Product Description");
+        request.setPrice(BigDecimal.valueOf(1000000));
+        request.setStock(10);
+        request.setCategoryId(1L);
+        request.setBrandId(1L);
     }
 
     @Test

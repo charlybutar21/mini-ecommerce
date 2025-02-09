@@ -1,4 +1,4 @@
-package org.charly.productservice.common.dto.response;
+package org.charly.productservice.common.web;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

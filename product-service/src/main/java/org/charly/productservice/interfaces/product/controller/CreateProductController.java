@@ -4,7 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.charly.productservice.application.product.dto.request.CreateProductRequest;
 import org.charly.productservice.application.product.usecase.CreateProductUseCase;
-import org.charly.productservice.common.dto.response.WebRestApiResponse;
+import org.charly.productservice.common.web.WebRestApiResponse;
 import org.charly.productservice.interfaces.product.dto.request.CreateProductRestApiRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;

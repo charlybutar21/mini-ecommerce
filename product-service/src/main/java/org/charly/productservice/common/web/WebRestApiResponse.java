@@ -1,4 +1,4 @@
-package org.charly.productservice.common.dto.response;
+package org.charly.productservice.common.web;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AllArgsConstructor;

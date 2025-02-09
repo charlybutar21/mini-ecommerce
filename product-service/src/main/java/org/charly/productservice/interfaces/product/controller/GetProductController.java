@@ -1,10 +1,9 @@
 package org.charly.productservice.interfaces.product.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.charly.productservice.application.product.dto.response.ProductResponse;
 import org.charly.productservice.application.product.usecase.GetProductUseCase;
-import org.charly.productservice.common.dto.response.WebRestApiResponse;
+import org.charly.productservice.common.web.WebRestApiResponse;
 import org.charly.productservice.interfaces.product.dto.response.ProductRestApiResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;

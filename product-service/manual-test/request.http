@@ -3,8 +3,8 @@ POST http://localhost:8080/api/products
 Content-Type: application/json
 
 {
-  "name": "Nike Butar Series",
-  "code": "NB001",
+  "name": "Nike Butar Series 2",
+  "code": "NB002",
   "description": "Nike Butar Series",
   "price": 3500000,
   "stock": 100,
@@ -20,6 +20,7 @@ Content-Type: application/json
   "name": "Nike Butar Series Revolution",
   "description": "Nike Butar Series",
   "price": 2000000,
+  "stock": 100,
   "categoryId": 2,
   "brandId": 1
 }
