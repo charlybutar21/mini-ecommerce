@@ -1,4 +1,4 @@
-package org.charly.productservice.common.web;
+package org.charly.productservice.infrastructure.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -6,6 +6,5 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ErrorDetail {
-    private String field;
     private String message;
 }

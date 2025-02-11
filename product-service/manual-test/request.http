@@ -13,7 +13,7 @@ Content-Type: application/json
 }
 
 ### Update product
-PUT http://localhost:8080/api/products/NB001
+PUT http://localhost:8080/api/products/NB002
 Content-Type: application/json
 
 {
@@ -26,10 +26,10 @@ Content-Type: application/json
 }
 
 ### Get product
-GET http://localhost:8080/api/products/NB001
+GET http://localhost:8080/api/products/NB002
 
 ### Delete product
-PATCH http://localhost:8080/api/products/NB001
+PATCH http://localhost:8080/api/products/NB002
 
 ### Search product
 GET http://localhost:8080/api/products/search?keyword=Nike&pageNumber=0&pageSize=10
