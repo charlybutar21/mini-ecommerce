@@ -6,6 +6,7 @@ import org.charly.productservice.application.product.dto.response.ProductRespons
 import org.charly.productservice.application.product.exception.ProductNotFoundException;
 import org.charly.productservice.domain.product.model.Product;
 import org.charly.productservice.domain.product.repository.ProductRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -35,14 +36,20 @@ class GetProductUseCaseImplTest {
     GetProductUseCaseImpl getProductUseCase;
     private Product product;
     private ProductResponse productResponse;
+    private AutoCloseable autoCloseable;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        autoCloseable = MockitoAnnotations.openMocks(this);
         product = new Product();
         product.setCode("P123");
 
         productResponse = new ProductResponse();
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        autoCloseable.close();
     }
 
     @Test

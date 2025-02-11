@@ -4,7 +4,7 @@ import org.charly.productservice.application.product.dto.request.SearchProductRe
 import org.charly.productservice.application.product.dto.response.ProductResponse;
 import org.charly.productservice.domain.product.model.Product;
 import org.charly.productservice.domain.product.repository.ProductRepository;
-import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -32,16 +32,22 @@ class SearchProductsUseCaseImplTest {
     private SearchProductRequest searchProductRequest;
     private Product product;
     private ProductResponse productResponse;
+    private AutoCloseable autoCloseable;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        autoCloseable = MockitoAnnotations.openMocks(this);
         searchProductRequest = new SearchProductRequest();
         searchProductRequest.setPageNumber(0);
         searchProductRequest.setPageSize(10);
 
         product = new Product();
         productResponse = new ProductResponse();
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        autoCloseable.close();
     }
 
     @Test

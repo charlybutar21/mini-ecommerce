@@ -3,7 +3,7 @@ services:
     image: mysql:8.2.0
     container_name: mysql_product
     ports:
-      - "3307:3306"  # Gunakan port 3307 agar tidak bentrok dengan MySQL lain
+      - "3307:3306"
     environment:
       MYSQL_ROOT_PASSWORD: secret
       MYSQL_DATABASE: product_db
@@ -26,9 +26,13 @@ services:
     ports:
       - "9092:9092"
     environment:
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: DOCKER_INTERNAL:PLAINTEXT,DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_LISTENERS: DOCKER_INTERNAL://:29092,DOCKER_EXTERNAL://:9092
+      KAFKA_ADVERTISED_LISTENERS: DOCKER_INTERNAL://kafka:29092,DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092
+      KAFKA_INTER_BROKER_LISTENER_NAME: DOCKER_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_BROKER_ID: 1
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
     depends_on:
       - zookeeper
     networks:
@@ -44,12 +48,22 @@ services:
     networks:
       - app-network
 
+  kafdrop:
+    image: obsidiandynamics/kafdrop:latest
+    container_name: kafdrop
+    ports:
+      - "9091:9000"
+    environment:
+      KAFKA_BROKERCONNECT: "kafka:29092"
+    networks:
+      - app-network
+    depends_on:
+      - "kafka"
+
 networks:
   app-network:
     driver: bridge
 
 volumes:
   mysql-product-data:
-    driver: local
-  mysql-order-data:
     driver: local

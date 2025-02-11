@@ -9,6 +9,7 @@ import org.charly.productservice.domain.product.model.Product;
 import org.charly.productservice.domain.product.repository.BrandRepository;
 import org.charly.productservice.domain.product.repository.CategoryRepository;
 import org.charly.productservice.domain.product.repository.ProductRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -37,10 +38,11 @@ class UpdateProductUseCaseImplTest {
     UpdateProductUseCaseImpl updateProductUseCase;
     private UpdateProductRequest request;
     private Product product;
+    private AutoCloseable autoCloseable;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        autoCloseable = MockitoAnnotations.openMocks(this);
         request = new UpdateProductRequest();
         request.setCode("P123");
         request.setName("Updated Product");
@@ -56,6 +58,11 @@ class UpdateProductUseCaseImplTest {
         product.setDescription("Old Description");
         product.setPrice(BigDecimal.valueOf(49.99));
         product.setStock(5);
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        autoCloseable.close();
     }
 
     @Test

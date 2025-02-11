@@ -3,6 +3,7 @@ package org.charly.productservice.application.product.usecase.impl;
 import org.charly.productservice.application.product.exception.ProductNotFoundException;
 import org.charly.productservice.domain.product.model.Product;
 import org.charly.productservice.domain.product.repository.ProductRepository;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -23,10 +24,16 @@ class DeleteProductUseCaseImplTest {
     StringRedisTemplate redisTemplate;
     @InjectMocks
     DeleteProductUseCaseImpl deleteProductUseCase;
+    private AutoCloseable autoCloseable;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        autoCloseable = MockitoAnnotations.openMocks(this);
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        autoCloseable.close();
     }
 
     @Test

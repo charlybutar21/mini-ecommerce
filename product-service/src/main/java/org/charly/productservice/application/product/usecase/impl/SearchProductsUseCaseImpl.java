@@ -55,7 +55,6 @@ public class SearchProductsUseCaseImpl implements SearchProductsUseCase {
     private Specification<Product> buildSpecification(SearchProductRequest request) {
         Specification<Product> spec = (root, query, cb) -> cb.equal(root.get("active"), true);
 
-        // Menambahkan filter berdasarkan request
         if (StringUtils.hasText(request.getKeyword())) {
             spec = spec.and((root, query, cb) ->
                     cb.like(cb.lower(root.get("name")), "%" + request.getKeyword().toLowerCase() + "%")

@@ -1,5 +1,7 @@
 package org.charly.productservice.application.product.usecase.impl;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,9 +15,12 @@ import org.charly.productservice.domain.product.model.Product;
 import org.charly.productservice.domain.product.repository.BrandRepository;
 import org.charly.productservice.domain.product.repository.CategoryRepository;
 import org.charly.productservice.domain.product.repository.ProductRepository;
+import org.charly.productservice.infrastructure.kafka.producer.KafkaProducerService;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+
+import static org.charly.productservice.infrastructure.kafka.topic.KafkaTopic.PRODUCT_TOPIC;
 
 @Service
 @RequiredArgsConstructor
@@ -28,24 +33,8 @@ public class CreateProductUseCaseImpl implements CreateProductUseCase {
 
     private final ProductRepository productRepository;
 
-    @Override
-    public void validate(CreateProductRequest createProductRequest) {
-        if (createProductRequest == null) {
-            throw new IllegalArgumentException("Product request cannot be null");
-        } else if (createProductRequest.getCode() == null || createProductRequest.getCode().isBlank()) {
-            throw new IllegalArgumentException("Product code cannot be null or empty");
-        }  else if (createProductRequest.getName() == null || createProductRequest.getName().isBlank()) {
-            throw new IllegalArgumentException("Product name cannot be null or empty");
-        } else if (createProductRequest.getPrice() == null || createProductRequest.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("Product price cannot be null or less than or equal to 0");
-        } else if (createProductRequest.getStock() <= 0) {
-            throw new IllegalArgumentException("Product stock cannot be less than or equal to 0");
-        } else if (createProductRequest.getCategoryId() == null || createProductRequest.getCategoryId() <= 0) {
-            throw new IllegalArgumentException("Product category id cannot be null or less than or equal to 0");
-        } else if (createProductRequest.getBrandId() == null || createProductRequest.getBrandId() <= 0) {
-            throw new IllegalArgumentException("Product brand id cannot be null or less than or equal to 0");
-        }
-    }
+    private final KafkaProducerService kafkaProducerService;
+    private final ObjectMapper objectMapper;
 
     @Override
     @Transactional
@@ -64,6 +53,13 @@ public class CreateProductUseCaseImpl implements CreateProductUseCase {
 
         product = productRepository.save(product);
 
+        try {
+            String message = objectMapper.writeValueAsString(product);
+            kafkaProducerService.sendMessage(PRODUCT_TOPIC.getTopicName(), message);
+        } catch (JsonProcessingException e) {
+            log.error("Error while sending message to Kafka: {}", e.getMessage());
+        }
+
         log.info("Product {} created successfully", product.getCode());
 
         return product.getCode();
@@ -80,5 +76,24 @@ public class CreateProductUseCaseImpl implements CreateProductUseCase {
                 .category(category)
                 .brand(brand)
                 .build();
+    }
+
+    @Override
+    public void validate(CreateProductRequest createProductRequest) {
+        if (createProductRequest == null) {
+            throw new IllegalArgumentException("Product request cannot be null");
+        } else if (createProductRequest.getCode() == null || createProductRequest.getCode().isBlank()) {
+            throw new IllegalArgumentException("Product code cannot be null or empty");
+        }  else if (createProductRequest.getName() == null || createProductRequest.getName().isBlank()) {
+            throw new IllegalArgumentException("Product name cannot be null or empty");
+        } else if (createProductRequest.getPrice() == null || createProductRequest.getPrice().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Product price cannot be null or less than or equal to 0");
+        } else if (createProductRequest.getStock() <= 0) {
+            throw new IllegalArgumentException("Product stock cannot be less than or equal to 0");
+        } else if (createProductRequest.getCategoryId() == null || createProductRequest.getCategoryId() <= 0) {
+            throw new IllegalArgumentException("Product category id cannot be null or less than or equal to 0");
+        } else if (createProductRequest.getBrandId() == null || createProductRequest.getBrandId() <= 0) {
+            throw new IllegalArgumentException("Product brand id cannot be null or less than or equal to 0");
+        }
     }
 }
