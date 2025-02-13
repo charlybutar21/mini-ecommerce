@@ -1,0 +1,50 @@
+### Create a new order
+POST http://localhost:8081/api/orders
+Content-Type: application/json
+
+{
+  "customerID": "550e8400-e29b-41d4-a716-446655440000",
+  "orderDate": "2025-02-12T15:04:05Z",
+  "status": 1,
+  "items": [
+    {
+      "productCode": "P001",
+      "productName": "Product One",
+      "quantity": 2,
+      "unitPrice": 29.99
+    },
+    {
+      "productCode": "P002",
+      "productName": "Product Two",
+      "quantity": 1,
+      "unitPrice": 49.99
+    }
+  ]
+}
+
+### Update a new order
+PUT http://localhost:8081/api/orders/234352dc-7fd0-4d9e-8f70-5fffdfc606fd
+Content-Type: application/json
+
+{
+  "customerID": "550e8400-e29b-41d4-a716-446655440000",
+  "orderDate": "2025-02-12T15:04:05Z",
+  "status": 1,
+  "items": [
+    {
+      "productCode": "P001",
+      "productName": "Product Two",
+      "quantity": 2,
+      "unitPrice": 29.99
+    },
+    {
+      "productCode": "P002",
+      "productName": "Product Two",
+      "quantity": 1,
+      "unitPrice": 49.99
+    }
+  ]
+}
+
+### Update a new order
+GET http://localhost:8081/api/orders/234352dc-7fd0-4d9e-8f70-5fffdfc606fd

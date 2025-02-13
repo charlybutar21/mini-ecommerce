@@ -12,6 +12,20 @@ services:
     networks:
       - app-network
 
+  postgres_order:
+    image: postgres:13
+    container_name: postgres_order
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: order_db
+    volumes:
+      - postgres-order-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
   redis:
     image: redis:latest
     container_name: redis
@@ -66,4 +80,6 @@ networks:
 
 volumes:
   mysql-product-data:
+    driver: local
+  postgres-order-data:
     driver: local
